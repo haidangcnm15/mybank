@@ -13,11 +13,12 @@ const {createValidator,updateValidator,deleteValidator} = validateUser;
 async function createUser(request, response, next) {
     try {
         console.log('request',request?.body)
-        // request.checkBody(createValidator);
-        // const errors = request.validationErrors();
-        // if (errors) {
-        //     return response.json(responseError(9009, errors));
-        // }
+        request.checkBody(createValidator);
+        const errors = request.validationErrors();
+        console.log({errors})
+        if (errors) {
+            return response.json(responseError(9009, errors));
+        }
         const {body} = request;
         const params = {
             fullName:body?.fullName,
@@ -26,7 +27,9 @@ async function createUser(request, response, next) {
             phoneNumber:body?.phoneNumber,
             address:body?.address,
             idCard:body?.idCard,
-            note:body?.note,
+            note: body?.note,
+            username: body?.username,
+            password:body?.password
         }
         console.log({params})
         const result = await UserServices.create(params);

@@ -1,0 +1,13 @@
+/.idea
+/node_modules
+/package-lock.json
+/logs
+/.env
+/gulpfile.js
+/src/public/uploads/databases
+/src/public/uploads/avatar
+/src/public/uploads/users
+/src/configs/database.js
+/src/public/uploads/users
+/.vscode
+
