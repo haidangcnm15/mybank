@@ -9,9 +9,10 @@ const { generatorTime, promiseResolve,
 const create = async (data) => {
     try {
         let set = data
-        set.createdAt = generatorTime();
-        set.updatedAt = generatorTime();
+        set.created = generatorTime();
+        set.updated = generatorTime();
         set.isDeleted=false
+        console.log({set})
         const result = await userModels.create(set);
         return promiseResolve(result);
     } catch (err) {
@@ -49,15 +50,35 @@ const hidden = async (data) => {
     }
 };
 
-const findById = async (data) => {
+const findById = async (userObjId) => {
     try {
         const conditions = {};
-        conditions._id = convertToObjectId(data.userObjId);
+        conditions._id = convertToObjectId(userObjId);
         conditions.isDeleted = false;
         const fields = {
-            fullName: 1,
+            name: 1,
             dob: 1,
-            phoneNumber: 1,
+            phone: 1,
+        };
+        const result = await userModels.findOne(conditions, fields);
+        return promiseResolve(result);
+    } catch (err) {
+        return promiseReject(err);
+    }
+};
+
+const findByUsername = async (username) => {
+    try {
+        const conditions = {
+            username : username,
+            isDeleted : false,
+        };
+        const fields = {
+            name: 1,
+            dob: 1,
+            phone: 1,
+            password:1,
+            isDeleted:1
         };
         const result = await userModels.findOne(conditions, fields);
         return promiseResolve(result);
@@ -72,16 +93,15 @@ const findInfoById = async (data) => {
         conditions._id = convertToObjectId(data.userObjId);
         conditions.isDeleted = false;
         const fields = {
-            fullName: 1,
+            name: 1,
             dob: 1,
-            phoneNumber: 1,
-            userName:1,
+            phone: 1,
+            username:1,
             password:1,
             sex:1,
-            phoneNumber:1,
             idCard:1,
-            createdAt:1,
-            updatedAt:1,
+            created:1,
+            updated:1,
         };
         const result = await userModels.findOne(conditions, fields);
         return promiseResolve(result);
@@ -96,4 +116,5 @@ module.exports = {
     hidden,
     findById,
     findInfoById,
+    findByUsername,
 };

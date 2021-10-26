@@ -3,17 +3,19 @@ const {
     validateObjectId, validateNumber,validateBankAccount
 } = require('../utils');
 
-const isUserObjId = validateObjectId('userObjId', true);
+const isUserSObjId = validateObjectId('sendUserObjId', true);
+const isUserRObjId = validateObjectId('receiveUserObjId', true);
 const isTransactionObjId = validateObjectId('transactionObjId', true);
 const isSendedAccountObjId = validateObjectId('sendedAccountObjId', true);
 const isReceivedAccountObjId = validateObjectId('receivedAccountObjId', true);
-const isDifferentBalance = validateNumber('diffBalance', true);
+const isAmount = validateNumber('amount', true);
 
 const createValidator = {
     ...isSendedAccountObjId,
-    ...isUserObjId,
+    ...isUserSObjId,
+    ...isUserRObjId,
     ...isReceivedAccountObjId,
-    ...isDifferentBalance,
+    ...isAmount,
 };
 
 const updateValidator = {

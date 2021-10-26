@@ -5,8 +5,17 @@ const {
 
 const isUserObjId = validateObjectId('userObjId', true);
 const isSex = validateSex('sex',true)
+
+const sexValidate = {
+    sex: {
+        notEmpty: true,
+        errorMessage: 'sex must be 1(male) or 0(female)',
+    },
+};
+
 const createValidator = {
     ...isSex,
+    ...sexValidate
 };
 
 const updateValidator = {

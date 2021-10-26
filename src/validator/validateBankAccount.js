@@ -6,7 +6,7 @@ const {
 const isBankAccountObjId = validateObjectId('bankAccountObjId', true);
 const isUserObjId = validateObjectId('userObjId', true);
 const isBankAccountNumber = validateBankAccount('accountNumber', true);
-const isAccountBalance = validateNumber('accountBalance',true);
+const isAccountBalance = validateNumber('balance',true);
 
 const createValidator = {
     ...isBankAccountNumber,

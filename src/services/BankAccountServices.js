@@ -9,8 +9,9 @@ const create = async (data) => {
     try {
         let set = data
         // set.validThru=
-        set.createdAt = generatorTime();
-        set.updatedAt = generatorTime();
+        set.status="ACTIVE"
+        set.created = generatorTime();
+        set.updated = generatorTime();
         set.isDeleted=false
         const result = await bankAccountModels.create(set);
         return promiseResolve(result);
