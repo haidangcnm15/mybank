@@ -39,7 +39,6 @@ async function createAccount(request, response, next) {
         }
         return response.json(responseError(9001, null));
     } catch (error) {
-        console.log({error})
         return response.json(responseError(9000, null));
     }
 };

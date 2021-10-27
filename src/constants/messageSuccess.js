@@ -10,7 +10,7 @@ exports.MESSAGE_SUCCESS={
     1102:'Deleted bank account is success!',
 
     //1200-1299 for transaction history
-
+    1200:'Transaction has completed!',
     //authen
     1300:"Login success"
 };

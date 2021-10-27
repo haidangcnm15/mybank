@@ -35,6 +35,15 @@ const update = async (data) => {
     }
 };
 
+const updateBalance = async (dataBulkWrite) => {
+    try {
+        const result = await bankAccountModels.bulkWrite(dataBulkWrite);
+        return promiseResolve(result);
+    } catch (err) {
+        return promiseReject(err);
+    }
+};
+
 const hidden = async (data) => {
     try {
         set.updatedAt = generatorTime();
@@ -50,11 +59,12 @@ const hidden = async (data) => {
     }
 };
 
-const findById = async (data) => {
+const findById = async (bankAccountObjId) => {
     try {
-        const conditions = {};
-        conditions._id = convertToObjectId(data.bankAccountObjId);
-        conditions.isDeleted = false;
+        const conditions = {
+            _id:convertToObjectId(bankAccountObjId),
+            isDeleted:false
+        };
         const fields = {
             accountNumber: 1,
             userObjId: 1,
@@ -63,6 +73,46 @@ const findById = async (data) => {
         const result = await bankAccountModels.findOne(conditions, fields);
         return promiseResolve(result);
     } catch (err) {
+        return promiseReject(err);
+    }
+};
+const findBankAccountByNumber = async (accountNumber)=>{
+    try {
+        const conditions = {
+            isDeleted:false,
+            accountNumber:accountNumber
+        };
+        const fields = {
+            accountNumber: 1,
+            userObjId: 1,
+            isDelete:1,
+        };
+        const result = await bankAccountModels.findOne(conditions, fields);
+        return promiseResolve(result);
+    } catch (error) {
+        return promiseReject(err);
+    }
+};
+
+const findBankAccountForUser = async (userObjId,bankAccountObjId)=>{
+    try {
+        const conditions = {
+            _id:convertToObjectId(bankAccountObjId),
+            userObjId:convertToObjectId(userObjId),
+            isDeleted:false,
+        };
+       .log({conditions})
+        const fields = {
+            accountNumber: 1,
+            userObjId: 1,
+            isDelete:1,
+            balance:1,
+            bankName:1,
+            bankCode:1
+        };
+        const result = await bankAccountModels.findOne(conditions, fields);
+        return promiseResolve(result);
+    } catch (error) {
         return promiseReject(err);
     }
 };
@@ -109,21 +159,21 @@ const listBankAccountByUser = async ({userObjId})=>{
     }
 }
 
-const updateBalance = async (data) => {
-    try {
-        const set = {};
-        set.accountBalance=data?.accountBalance
-        set.updatedAt = generatorTime();
-        const conditions = {
-            _id: convertToObjectId(data.bankAccountObjId),
-            isDeleted: false,
-        };
-        const result = await bankAccountModels.findOneAndUpdate(conditions, set, {new: true});
-        return promiseResolve(result);
-    } catch (err) {
-        return promiseReject(err);
-    }
-};
+// const updateBalance = async (data) => {
+//     try {
+//         const set = {};
+//         set.balance=data?.balance
+//         set.updatedAt = generatorTime();
+//         const conditions = {
+//             _id: convertToObjectId(data.bankAccountObjId),
+//             isDeleted: false,
+//         };
+//         const result = await bankAccountModels.findOneAndUpdate(conditions, set, {new: true});
+//         return promiseResolve(result);
+//     } catch (err) {
+//         return promiseReject(err);
+//     }
+// };
  
 module.exports = {
     create,
@@ -132,5 +182,7 @@ module.exports = {
     findById,
     findInfoById,
     updateBalance,
+    findBankAccountByNumber,
+    findBankAccountForUser,
     listBankAccountByUser
 };

@@ -10,7 +10,7 @@ exports.MESSAGE_ERROR={
     //2100 - 2199 for bank account
 
     //2200 - 2299 for transaction history
-
+    2200:'Your balance not enough for this transaction!',
     //2300-2399 for authen 
     2300:'Token is not found',
     //9000-9999 for other error

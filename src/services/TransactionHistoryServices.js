@@ -9,8 +9,9 @@ const {
       try {
           let set = data
           // set.validThru=
-          set.createdAt = generatorTime();
-          set.updatedAt = generatorTime();
+          set.timeTransaction=generatorTime()
+          set.created = generatorTime();
+          set.updated = generatorTime();
           set.isDeleted=false
           const result = await transactionHistoryModels.create(set);
           return promiseResolve(result);
@@ -35,6 +36,22 @@ const {
       }
   };
   
+  const updateManyStatus = async (statusTransaction,listObjIds) => {
+    try {
+        const set = {};
+        set.status=statusTransaction
+        set.updatedAt = generatorTime();
+        const conditions = {
+            _id: {$in:listObjIds},
+            isDeleted: false,
+        };
+        const result = await transactionHistoryModels.updateMany(conditions, {$set:{set}}, {new: true});
+        return promiseResolve(result);
+    } catch (err) {
+        return promiseReject(err);
+    }
+};
+
   const findById = async (data) => {
       try {
           const conditions = {};
@@ -99,6 +116,7 @@ const {
       updateStatus,
       findById,
       findInfoById,
+      updateManyStatus,
       listBankAccountByUser
   };
   

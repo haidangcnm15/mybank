@@ -7,7 +7,6 @@ async function login(request, response, next) {
     try {
         const { username, password } = request.body;
         let user = await UserServices.findByUsername(username);
-        console.log({user})
     if (user && user.isDeleted == false ) {
         if (password === user.password) {
             const data = {
@@ -15,7 +14,6 @@ async function login(request, response, next) {
                 username: username,
                 loggedAt: Date.now()
             }
-            console.log({data})
             const result = signToken(data);
             if(result){
                 const dataResponse = {

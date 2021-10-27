@@ -12,7 +12,6 @@ const create = async (data) => {
         set.created = generatorTime();
         set.updated = generatorTime();
         set.isDeleted=false
-        console.log({set})
         const result = await userModels.create(set);
         return promiseResolve(result);
     } catch (err) {

@@ -5,7 +5,7 @@ const {
 const {
     responseError,
     responseSuccess,
-    trimValue,isEmpty,
+    trimValue,isEmpty,generatorTime,
 } = require('../utils');
 
 const {createValidator,updateValidator,deleteValidator} = validateTransactionHistory;
@@ -20,30 +20,71 @@ async function createTransaction(request, response, next) {
         const {body} = request;
         const isExistUNSend = await UserServices.findById(body?.sendUserObjId)
         const isExistUNReceive = await UserServices.findById(body?.receiveUserObjId)
-        const isExistBASend = await BankAccountServices.findById(body?.sendedAccountObjId)
-        const isExistBAReceive = await BankAccountServices.findById(body?.receivedAccountObjId)
-        return ('isExistBASend',isExistBASend,isExistBAReceive,isExistUNSend,isExistUNReceive)
-        if(!isExistUN){
+        const isExistBASend = await BankAccountServices.findBankAccountForUser(body?.sendUserObjId,body?.sendedAccountObjId)
+        const isExistBAReceive = await BankAccountServices.findBankAccountForUser(body?.receiveUserObjId,body?.receivedAccountObjId)
+        if(!isExistUNSend || !isExistUNReceive || !isExistBASend || !isExistBAReceive){
             return response.json(responseError(2002, null));
         }
-        const params = {
-            accountNumber:body?.accountNumber,
-            cardNumber:body?.cardNumber,
-            userObjId:body?.userObjId,
-            balance:body?.balance,
-            validThru:body?.validThru,
-            brachAddress:body?.brachAddress,
-            bankName: body?.bankName,
-            bankCode: body?.bankCode,
-            swiftCode:body?.swiftCode
+        if(isExistBASend?.balance <= body?.amount){
+            return response.json(responseError(2200, null));
         }
-        const result = await BankAccountServices.create(params);
-        if (!isEmpty(result)) {
-            return response.json(responseSuccess(1100, result));
+        const params ={
+            sendUserObjId:isExistBASend?.userObjId,
+            receiveUserObjId:isExistBAReceive?.userObjId,
+            sendedAccountObjId:isExistBASend?._id,
+            receivedAccountObjId:isExistBAReceive?._id,
+            status:'PENDING',
+            contentTransaction:body?.contentTransaction || ''
+        }
+        const paramsSend = {
+            ...params,
+            newBalance:isExistBASend?.balance - body?.amount,
+            oldBalance:isExistBASend?.balance,
+            diffBalance:body?.amount,
+            type:'SEND'
+        }
+        const paramsReceived={
+            ...params,
+            newBalance:isExistBAReceive?.balance + body?.amount,
+            oldBalance:isExistBAReceive?.balance,
+            diffBalance:body?.amount,
+            type:'RECEIVE'
+        }
+        const resultCreateSend = await TransactionHistoryServices.create(paramsSend);
+        const resultCreateReceive = await TransactionHistoryServices.create(paramsReceived)
+        if(resultCreateSend?._id && resultCreateReceive?._id){
+            const dataBulkWrite= [{
+                updateOne: {
+                    filter: {
+                        _id: params?.sendedAccountObjId,
+                    },
+                    update: {
+                        $set: {
+                            balance:paramsSend?.newBalance,
+                            updated: generatorTime(),
+                        }
+                    },
+                },
+            },
+            {
+                updateOne: {
+                    filter: {
+                        _id: params?.receivedAccountObjId,
+                    },
+                    update: {
+                        $set: {
+                            balance:paramsReceived?.newBalance,
+                            updated: generatorTime(),
+                        }
+                    },
+                },
+            }]
+            const resultUpdateBalance = await BankAccountServices?.updateBalance(dataBulkWrite)
+            const result = await TransactionHistoryServices?.updateManyStatus("SUCCESS",[resultCreateSend?._id,resultCreateSend?._id]) 
+            return response.json(responseSuccess(1200, null));
         }
         return response.json(responseError(9001, null));
     } catch (error) {
-        console.log({error})
         return response.json(responseError(9000, null));
     }
 };
